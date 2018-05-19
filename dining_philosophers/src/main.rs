@@ -31,7 +31,19 @@ fn main() {
         Philosopher::new("Michel"),
     ];
 
-    for p in &philosophers {
-        p.eat();
+    // シングルスレッド処理　哲学者は一人ずつ食事をする
+    // for p in &philosophers {
+    //     p.eat();
+    // }
+
+    // マルチスレッド処理 哲学者は複数人で食事をする
+    let handles: Vec<_> = philosophers.into_iter().map(|p| {
+        thread::spawn(move||{
+            p.eat();
+        })
+    }).collect();
+
+    for h in handles {
+        h.join().unwrap();
     }
 }
