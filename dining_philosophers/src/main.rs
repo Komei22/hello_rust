@@ -8,6 +8,10 @@ struct Philosopher {
     right: usize,
 }
 
+struct Table {
+    forks: Vec<Mutex<()>>,
+}
+
 impl Philosopher {
     fn new(name: &str, left: usize, right: usize) -> Philosopher {
         Philosopher {
