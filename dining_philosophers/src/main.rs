@@ -8,10 +8,6 @@ struct Philosopher {
     right: usize,
 }
 
-struct Table {
-    forks: Vec<Mutex<()>>,
-}
-
 impl Philosopher {
     fn new(name: &str, left: usize, right: usize) -> Philosopher {
         Philosopher {
@@ -21,34 +17,47 @@ impl Philosopher {
         }
     }
 
-    fn eat(&self) {
+    fn eat(&self, table: &Table) {
+        let _left = table.forks[self.left].lock().unwrap();
+        thread::sleep(Duration::from_millis(150));
+        let _right = table.forks[self.right].lock().unwrap();
+
+        println!("{} {}", self.left, self.right);
+
         println!("{} is eating.", self.name);
 
         thread::sleep(Duration::from_millis(1000));
 
-        println!("{} is done eating!", self.name);
+        println!("{} is done eating.", self.name);
     }
 }
 
+struct Table {
+    forks: Vec<Mutex<()>>,
+}
 
 fn main() {
+    let table = Arc::new(Table { forks: vec![
+        Mutex::new(()),
+        Mutex::new(()),
+        Mutex::new(()),
+        Mutex::new(()),
+        Mutex::new(()),
+    ]});
+
     let philosophers = vec![
-        Philosopher::new("John"),
-        Philosopher::new("Andy"),
-        Philosopher::new("Karl"),
-        Philosopher::new("Emma"),
-        Philosopher::new("Michel"),
+        Philosopher::new("Judith Butler", 0, 1),
+        Philosopher::new("Gilles Deleuze", 1, 2),
+        Philosopher::new("Karl Marx", 2, 3),
+        Philosopher::new("Emma Goldman", 3, 4),
+        Philosopher::new("Michel Foucault", 0, 4),
     ];
 
-    // シングルスレッド処理　哲学者は一人ずつ食事をする
-    // for p in &philosophers {
-    //     p.eat();
-    // }
-
-    // マルチスレッド処理 哲学者は複数人で食事をする
     let handles: Vec<_> = philosophers.into_iter().map(|p| {
-        thread::spawn(move||{
-            p.eat();
+        let table = table.clone();
+
+        thread::spawn(move || {
+            p.eat(&table);
         })
     }).collect();
 
