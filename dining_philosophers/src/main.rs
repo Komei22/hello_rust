@@ -1,14 +1,19 @@
 use std::thread;
 use std::time::Duration;
+use std::sync::{Mutex, Arc};
 
 struct Philosopher {
     name: String,
+    left: usize,
+    right: usize,
 }
 
 impl Philosopher {
-    fn new(name: &str) -> Philosopher {
+    fn new(name: &str, left: usize, right: usize) -> Philosopher {
         Philosopher {
             name: name.to_string(),
+            left: left,
+            right: right,
         }
     }
 
